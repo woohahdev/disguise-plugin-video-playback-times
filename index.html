@@ -1,0 +1,123 @@
+<html>
+  <head>
+    <title>Digsuise Plugin - Video Playback Times</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 5px;
+      }
+
+      main {
+        color: white;
+      }
+
+      #times {
+        font-size: 40pt;
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      #times .time {
+        background: #fff8;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+    </style>
+  </head>
+
+  <meta name="disguise-plugin-window-size" content="512,512" />
+  <meta name="disguise-plugin-window-min-size" content="512,512" />
+
+  <meta name="disguise-plugin-window-resizable" content="false" />
+  <body>
+    <main id="app">
+      <div id="times"></div>
+    </main>
+    <script type="module">
+      class D3Plugin {
+        constructor({ director }) {
+          this.director = director ?? "localhost:80";
+          const url = new URL(
+            "/api/session/liveupdate",
+            `ws://${this.director}`,
+          );
+
+          this.websocket = new WebSocket(url.toString());
+          this.websocket.onopen = () => {
+            console.log("Connection established");
+          };
+          this.websocket.onmessage = (event) => {
+            console.log(event);
+          };
+          this.websocket.onerror = (error) => {
+            console.error(error);
+          };
+        }
+
+        async runPython(script) {
+          const url = new URL(
+            "/api/session/python/execute",
+            `http://${this.director}`,
+          );
+          const response = await fetch(url.toString(), {
+            method: "POST",
+            body: JSON.stringify({
+              script,
+            }),
+          });
+          const result = await response.json();
+          return {
+            d3Log: result.d3Log,
+            pythonLog: result.pythonLog,
+            returnValue: JSON.parse(result.returnValue),
+          };
+        }
+      }
+
+      const url = new URL(document.location);
+      const director = url.searchParams.get("director");
+
+      const app = new D3Plugin({ director });
+
+      setInterval(async () => {
+        const pythonCode = `
+video_layers = [];
+for layer in state.track.layers:
+  if hasattr(layer.module, "video"):
+    if hasattr(layer.module.video, "end"):
+      if(layer.module.isRendering):
+        current_frame = layer.module.frameNumberDisplay;
+        end_frame = layer.module.video.end;
+        fps = layer.module.video.fps;
+        time_remaining = (end_frame-current_frame) / (fps)
+        video_layers.append( {
+            "layer_name": layer.name,
+            "time_remaining": time_remaining
+            });
+return { "layers": video_layers }
+                `;
+        const { returnValue } = await app.runPython(pythonCode);
+
+        document.querySelector("#times").innerHTML = "";
+
+        for (const layer of returnValue.layers) {
+          const time = document.createElement("div");
+          time.classList.add("time");
+
+          const layerName = document.createElement("span");
+          layerName.innerText = layer.layer_name;
+          time.appendChild(layerName);
+
+          const timeRemaining = document.createElement("span");
+          timeRemaining.innerText = layer.time_remaining;
+          time.appendChild(timeRemaining);
+
+          document.querySelector("#times").appendChild(time);
+        }
+      }, 100);
+    </script>
+  </body>
+</html>

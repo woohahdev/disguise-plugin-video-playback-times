@@ -1,0 +1,17 @@
+{
+  "name": "@woohahdev/disguise-plugin-video-playack-times",
+  "version": "0.1.0",
+  "scripts": {
+    "build-dist": "vite build"
+  },
+  "author": "Kye Lewis <kye.lewis@woohah.com.au>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/dnssd": "0.4.5",
+    "prettier": "3.5.3",
+    "vite": "6.2.4"
+  },
+  "dependencies": {
+    "dnssd": "0.4.1"
+  }
+}
