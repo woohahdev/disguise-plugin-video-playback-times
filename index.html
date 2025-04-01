@@ -31,9 +31,8 @@
   <meta name="disguise-plugin-window-size" content="512,512" />
   <meta name="disguise-plugin-window-min-size" content="512,512" />
   <meta name="disguise-plugin-window-resizable" content="false" />
-  
-  <body>
 
+  <body>
     <main id="app">
       <div id="times"></div>
     </main>
@@ -84,8 +83,9 @@
 
       const app = new D3Plugin({ director });
 
-      setInterval(async () => {
-        const pythonCode = `
+      const interval = setInterval(async () => {
+        try {
+          const pythonCode = `
 video_layers = [];
 for layer in state.track.layers:
   if hasattr(layer.module, "video"):
@@ -101,23 +101,27 @@ for layer in state.track.layers:
             });
 return { "layers": video_layers }
                 `;
-        const { returnValue } = await app.runPython(pythonCode);
+          const { returnValue } = await app.runPython(pythonCode);
 
-        document.querySelector("#times").innerHTML = "";
+          document.querySelector("#times").innerHTML = "";
 
-        for (const layer of returnValue.layers) {
-          const time = document.createElement("div");
-          time.classList.add("time");
+          for (const layer of returnValue.layers) {
+            const time = document.createElement("div");
+            time.classList.add("time");
 
-          const layerName = document.createElement("span");
-          layerName.innerText = layer.layer_name;
-          time.appendChild(layerName);
+            const layerName = document.createElement("span");
+            layerName.innerText = layer.layer_name;
+            time.appendChild(layerName);
 
-          const timeRemaining = document.createElement("span");
-          timeRemaining.innerText = layer.time_remaining;
-          time.appendChild(timeRemaining);
+            const timeRemaining = document.createElement("span");
+            timeRemaining.innerText = layer.time_remaining;
+            time.appendChild(timeRemaining);
 
-          document.querySelector("#times").appendChild(time);
+            document.querySelector("#times").appendChild(time);
+          }
+        } catch (error) {
+          alert(error);
+          clearInterval(interval);
         }
       }, 100);
     </script>

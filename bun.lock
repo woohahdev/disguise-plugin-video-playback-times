@@ -4,9 +4,11 @@
     "": {
       "name": "disguise-plugin-hello-world",
       "dependencies": {
-        "@types/dnssd": "0.4.5",
         "dnssd": "0.4.1",
-        "prettier": "^3.5.3",
+      },
+      "devDependencies": {
+        "@types/dnssd": "0.4.5",
+        "prettier": "3.5.3",
         "vite": "6.2.4",
       },
     },

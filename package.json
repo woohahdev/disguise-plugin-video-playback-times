@@ -2,7 +2,8 @@
   "name": "@woohahdev/disguise-plugin-video-playack-times",
   "version": "0.1.0",
   "scripts": {
-    "build-dist": "vite build"
+    "build-dist": "vite build",
+    "format": "prettier --write ."
   },
   "author": "Kye Lewis <kye.lewis@woohah.com.au>",
   "license": "MIT",
