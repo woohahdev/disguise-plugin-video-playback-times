@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "build-dist": "vite build",
+    "dev": "vite .",
     "format": "prettier --write ."
   },
   "author": "Kye Lewis <kye.lewis@woohah.com.au>",
