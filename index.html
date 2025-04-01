@@ -38,50 +38,9 @@
     </main>
 
     <script type="module">
-      class D3Plugin {
-        constructor({ director }) {
-          this.director = director ?? "localhost:80";
-          const url = new URL(
-            "/api/session/liveupdate",
-            `ws://${this.director}`,
-          );
+      import { D3Plugin } from "./src/lib";
 
-          this.websocket = new WebSocket(url.toString());
-          this.websocket.onopen = () => {
-            console.log("Connection established");
-          };
-          this.websocket.onmessage = (event) => {
-            console.log(event);
-          };
-          this.websocket.onerror = (error) => {
-            console.error(error);
-          };
-        }
-
-        async runPython(script) {
-          const url = new URL(
-            "/api/session/python/execute",
-            `http://${this.director}`,
-          );
-          const response = await fetch(url.toString(), {
-            method: "POST",
-            body: JSON.stringify({
-              script,
-            }),
-          });
-          const result = await response.json();
-          return {
-            d3Log: result.d3Log,
-            pythonLog: result.pythonLog,
-            returnValue: JSON.parse(result.returnValue),
-          };
-        }
-      }
-
-      const url = new URL(document.location);
-      const director = url.searchParams.get("director");
-
-      const app = new D3Plugin({ director });
+      const app = new D3Plugin();
 
       const interval = setInterval(async () => {
         try {
@@ -99,8 +58,8 @@ for layer in state.track.layers:
             "layer_name": layer.name,
             "time_remaining": time_remaining
             });
-return { "layers": video_layers }
-                `;
+return { "layers": video_layers }`;
+
           const { returnValue } = await app.runPython(pythonCode);
 
           document.querySelector("#times").innerHTML = "";

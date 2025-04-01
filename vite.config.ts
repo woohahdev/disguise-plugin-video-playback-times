@@ -1,8 +1,8 @@
-import { DisguisePlugin } from "./src/plugin";
+import DisguiseVitePlugin from "./src/vite-plugin";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  plugins: [DisguisePlugin({ name: "video-playback-time" })],
+  plugins: [DisguiseVitePlugin({ name: "video-playback-time" })],
   server: {
     // @todo fixme
     allowedHosts: ["woohah-0028417.local"],

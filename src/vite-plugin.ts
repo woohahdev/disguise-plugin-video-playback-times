@@ -4,7 +4,7 @@ interface DisguisePluginOptions {
   name: string;
 }
 
-export const DisguisePlugin = (options: DisguisePluginOptions) => {
+const DisguisePlugin = (options: DisguisePluginOptions) => {
   if (typeof options !== "object") throw new Error("options must be an object");
   if (typeof options.name !== "string")
     throw new Error("name must be a number");
@@ -42,3 +42,5 @@ export const DisguisePlugin = (options: DisguisePluginOptions) => {
     },
   };
 };
+
+export default DisguisePlugin;
