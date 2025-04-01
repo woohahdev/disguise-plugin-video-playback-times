@@ -1,18 +1,24 @@
 import dnssd from "dnssd";
+import { Plugin } from "vite";
 
 interface DisguisePluginOptions {
   name: string;
 }
 
-const DisguisePlugin = (options: DisguisePluginOptions) => {
+const DisguisePlugin = (options: DisguisePluginOptions): Plugin => {
   if (typeof options !== "object") throw new Error("options must be an object");
   if (typeof options.name !== "string")
     throw new Error("name must be a number");
 
   return {
+    name: "disguise-plugin",
     configureServer: (server) => {
-      server.httpServer.on("listening", (event) => {
-        const { address, family, port } = server.httpServer.address();
+      if (!server.httpServer) throw new Error("No httpServer found");
+
+      server.httpServer.on("listening", () => {
+        const address = server.httpServer!.address();
+        if (!address || typeof address !== "object")
+          throw new Error("Unexpected address found");
 
         const serviceType = new dnssd.ServiceType({
           name: "_d3plugin",
@@ -22,13 +28,13 @@ const DisguisePlugin = (options: DisguisePluginOptions) => {
 
         // We don't set txt in the constructor options, because 'pluginType' won't validate with dnssd,
         // being over 9 characters long.
-        const ad = new dnssd.Advertisement(serviceType, port, {
+        const ad = new dnssd.Advertisement(serviceType, address.port, {
           name: options.name,
           interface: "127.0.0.1",
         });
 
         // Instead, we'll set directly on the Advertisement object before starting.
-        ad.txt = {
+        (ad as any).txt = {
           pluginType: "web",
           hostname: address,
         };
@@ -36,7 +42,7 @@ const DisguisePlugin = (options: DisguisePluginOptions) => {
         ad.start();
 
         console.log(
-          `Announced Disguise Plugin ${options.name} at http://${address}:${port}`,
+          `Announced Disguise Plugin ${options.name} at http://${address.address}:${address.port}`,
         );
       });
     },

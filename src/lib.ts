@@ -1,8 +1,20 @@
 export class D3Plugin {
+  directorWsUrl: URL;
+  directorRestUrl: URL;
+  websocket!: WebSocket;
+
   constructor() {
-    this.director =
-      new URL(document.location).searchParams.get("director") ?? "localhost:80";
-    const url = new URL("/api/session/liveupdate", `ws://${this.director}`);
+    const director =
+      new URL(document.location.href).searchParams.get("director") ??
+      "localhost:80";
+    this.directorWsUrl = new URL(`ws://${director}`);
+    this.directorRestUrl = new URL(`http://${director}`);
+
+    this.setupLiveUpdate();
+  }
+
+  setupLiveUpdate() {
+    const url = new URL("/api/session/liveupdate", this.directorWsUrl);
 
     this.websocket = new WebSocket(url.toString());
     this.websocket.onopen = () => {
@@ -16,22 +28,31 @@ export class D3Plugin {
     };
   }
 
-  async runPython(script) {
-    const url = new URL(
-      "/api/session/python/execute",
-      `http://${this.director}`,
-    );
+  async runPython(script: string) {
+    if (typeof script !== "string") throw new Error("script must be a string");
+
+    const url = new URL("/api/session/python/execute", this.directorRestUrl);
+
     const response = await fetch(url.toString(), {
       method: "POST",
       body: JSON.stringify({
         script,
       }),
     });
+
     const result = await response.json();
+
+    let returnValue;
+    try {
+      returnValue = JSON.parse(result.returnValue);
+    } catch (error) {
+      returnValue = result.returnValue;
+    }
+
     return {
       d3Log: result.d3Log,
       pythonLog: result.pythonLog,
-      returnValue: JSON.parse(result.returnValue),
+      returnValue,
     };
   }
 }

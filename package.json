@@ -2,16 +2,20 @@
   "name": "@woohahdev/disguise-plugin-video-playack-times",
   "version": "0.1.0",
   "scripts": {
-    "build-dist": "vite build",
+    "build": "vite build && bun build src/bin.ts --compile",
     "dev": "vite .",
     "format": "prettier --write ."
   },
   "author": "Kye Lewis <kye.lewis@woohah.com.au>",
   "license": "MIT",
+  "type": "module",
   "devDependencies": {
+    "@types/bun": "1.2.8",
     "@types/dnssd": "0.4.5",
     "prettier": "3.5.3",
-    "vite": "6.2.4"
+    "typescript": "5.8.2",
+    "vite": "6.2.4",
+    "vite-plugin-singlefile": "2.2.0"
   },
   "dependencies": {
     "dnssd": "0.4.1"
