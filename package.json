@@ -2,7 +2,8 @@
   "name": "@woohahdev/disguise-plugin-video-playack-times",
   "version": "0.1.0",
   "scripts": {
-    "build": "vite build && bun build src/bin.ts --compile",
+    "build-exe": "vite build && bun build src/bin.ts --compile --outfile plugin",
+    "build-zip": "vite build && zip plugin.zip dist",
     "dev": "vite .",
     "format": "prettier --write ."
   },
