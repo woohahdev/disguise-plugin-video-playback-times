@@ -2,14 +2,14 @@
   "name": "@woohahdev/disguise-plugin-video-playback-times",
   "version": "0.1.1",
   "scripts": {
-    "build-exe": "vite build && nexe src/bin.ts --build ",
+    "build-exe": "vite build && pkg src/bin.ts ",
     "build-zip": "vite build && zip plugin.zip dist",
     "dev": "vite .",
+    "electron": "cross-env NODE_OPTIONS=\"--import tsx\" electron ./src/bin",
     "format": "prettier --write ."
   },
   "author": "Kye Lewis <kye.lewis@woohah.com.au>",
   "license": "MIT",
-  "type": "module",
   "devDependencies": {
     "prettier": "3.5.3",
     "vite": "6.2.4",
@@ -18,7 +18,12 @@
   "dependencies": {
     "@matrixai/mdns": "2.0.7",
     "@whatwg-node/server": "0.10.3",
+    "cross-env": "^7.0.3",
+    "electron": "^35.1.4",
     "nexe": "5.0.0-beta.4",
+    "pkg": "^5.8.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "5.8.2"
   },
   "trustedDependencies": [
