@@ -1,4 +1,4 @@
-import dnssd from "dnssd";
+import { MDNS } from "@matrixai/mdns";
 import { Plugin } from "vite";
 
 interface DisguisePluginOptions {
@@ -15,34 +15,30 @@ const DisguisePlugin = (options: DisguisePluginOptions): Plugin => {
     configureServer: (server) => {
       if (!server.httpServer) throw new Error("No httpServer found");
 
-      server.httpServer.on("listening", () => {
+      server.httpServer.on("listening", async () => {
         const address = server.httpServer!.address();
         if (!address || typeof address !== "object")
           throw new Error("Unexpected address found");
 
-        const serviceType = new dnssd.ServiceType({
-          name: "_d3plugin",
-          protocol: "_tcp",
-          subtypes: [],
-        });
+        const mdns = new MDNS();
 
-        // We don't set txt in the constructor options, because 'pluginType' won't validate with dnssd,
-        // being over 9 characters long.
-        const ad = new dnssd.Advertisement(serviceType, address.port, {
+        console.log(mdns);
+
+        await mdns.start({});
+
+        await mdns.registerService({
           name: options.name,
-          interface: "127.0.0.1",
+          port: address.port,
+          protocol: "tcp",
+          txt: {
+            pluginType: "web",
+            hostname: "localhost",
+          },
+          type: "d3plugin",
         });
-
-        // Instead, we'll set directly on the Advertisement object before starting.
-        (ad as any).txt = {
-          pluginType: "web",
-          hostname: address,
-        };
-
-        ad.start();
 
         console.log(
-          `Announced Disguise Plugin ${options.name} at http://${address.address}:${address.port}`,
+          `Announced Disguise Plugin ${options.name} at http://${mdns.hostname}:${address.port}`,
         );
       });
     },

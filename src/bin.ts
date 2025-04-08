@@ -1,52 +1,58 @@
-import html from "../dist/index.html" with { type: "text " };
-import pkg from "../package.json";
-import Bun from "bun";
-import dnssd from "dnssd";
+//import html from "../dist/index.html" with { type: "text " };
+import pkg from "../package.json" with { type: "json" };
+
+import { createServerAdapter } from "@whatwg-node/server";
+import { createServer, Server } from "node:http";
 
 interface PluginAppOptions {
   name: string;
 }
 
 class PluginApp {
-  server: Bun.Server;
+  server: Server;
+  name: string;
+  port: number;
 
   constructor(options: PluginAppOptions) {
-    this.server = Bun.serve({
-      fetch: () =>
-        new Response(html, { headers: { "Content-Type": "text/html" } }),
+    this.port = 23151;
+    // You can create your Node server instance by using our adapter
+    this.server = createServer(
+      createServerAdapter(
+        () => new Response(``, { headers: { "Content-Type": "text/html" } }),
+      ),
+    );
+
+    this.server.listen(this.port);
+
+    this.name = options.name;
+    this.port = this.port;
+  }
+
+  async start() {
+    const { MDNS } = await import("@matrixai/mdns");
+
+    const mdns = new MDNS();
+
+    await mdns.start({});
+
+    await mdns.registerService({
+      name: this.name,
+      port: this.port,
+      protocol: "tcp",
+      txt: {
+        pluginType: "web",
+      },
+      type: "d3plugin",
     });
-
-    const name = options.name;
-    const port = this.server.port;
-    const hostname = this.server.hostname;
-
-    const serviceType = new dnssd.ServiceType({
-      name: "_d3plugin",
-      protocol: "_tcp",
-      subtypes: [],
-    });
-
-    // We don't set txt in the constructor options, because 'pluginType' won't validate with dnssd,
-    // being over 9 characters long.
-    const ad = new dnssd.Advertisement(serviceType, port, {
-      name: pkg.name,
-      interface: "127.0.0.1",
-    });
-
-    // Instead, we'll set directly on the Advertisement object before starting.
-    (ad as any).txt = {
-      pluginType: "web",
-      hostname: this.server.hostname,
-    };
-
-    ad.start();
 
     console.log(
-      `Started Disguise Plugin ${name} at http://${hostname}:${port}`,
+      `Announced Disguise Plugin ${this.name} at http://${mdns.hostname}:${this.port}`,
     );
   }
 }
 
-const app = new PluginApp({
+const pluginApp = new PluginApp({
   name: pkg.name,
 });
+
+pluginApp.start();

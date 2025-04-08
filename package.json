@@ -1,8 +1,8 @@
 {
-  "name": "@woohahdev/disguise-plugin-video-playack-times",
-  "version": "0.1.0",
+  "name": "@woohahdev/disguise-plugin-video-playback-times",
+  "version": "0.1.1",
   "scripts": {
-    "build-exe": "vite build && bun build src/bin.ts --compile --minify --sourcemap --target=bun-windows-x64 --outfile plugin",
+    "build-exe": "vite build && nexe src/bin.ts --build ",
     "build-zip": "vite build && zip plugin.zip dist",
     "dev": "vite .",
     "format": "prettier --write ."
@@ -11,14 +11,17 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "1.2.8",
-    "@types/dnssd": "0.4.5",
     "prettier": "3.5.3",
-    "typescript": "5.8.2",
     "vite": "6.2.4",
     "vite-plugin-singlefile": "2.2.0"
   },
   "dependencies": {
-    "dnssd": "0.4.1"
-  }
+    "@matrixai/mdns": "2.0.7",
+    "@whatwg-node/server": "0.10.3",
+    "nexe": "5.0.0-beta.4",
+    "typescript": "5.8.2"
+  },
+  "trustedDependencies": [
+    "core-js"
+  ]
 }

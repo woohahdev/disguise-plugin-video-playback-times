@@ -1,13 +1,13 @@
 import DisguiseVitePlugin from "./src/vite-plugin.js";
 import { viteSingleFile } from "vite-plugin-singlefile";
 import { defineConfig } from "vite";
+import pkg from "./package.json";
 
 export default defineConfig({
-  plugins: [
-    DisguiseVitePlugin({ name: "video-playback-time" }),
-    viteSingleFile(),
-  ],
+  logLevel: "info",
+  plugins: [DisguiseVitePlugin({ name: pkg.name }), viteSingleFile()],
   server: {
-    allowedHosts: ["woohah-0028417.local"],
+    host: "0.0.0.0",
+    allowedHosts: [".local"],
   },
 });
